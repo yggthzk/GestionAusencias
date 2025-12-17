@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de Ausencias</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: rgba(30, 30, 30, 0.95);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(4px);
+        }
+        h1, h2 { color: #fff; text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 2.5rem; text-shadow: 2px 2px 4px #000; }
+        
+        /* Botones de Inicio */
+        .role-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            font-weight: bold;
+        }
+        .role-btn:hover { transform: scale(1.02); opacity: 0.9; }
+        .btn-admin { background: linear-gradient(45deg, #e94560, #c8193f); color: white; }
+        .btn-emp { background: linear-gradient(45deg, #0f3460, #533483); color: white; }
+
+        /* Formularios */
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #aebbc9; }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #252a34;
+            border: 1px solid #393e46;
+            color: #fff;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        input:focus { outline: none; border-color: #e94560; }
+
+        /* Botones Accion */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+        }
+        .btn-primary { background-color: #e94560; width: 100%; font-size: 1.1rem; }
+        .btn-success { background-color: #00adb5; }
+        .btn-danger { background-color: #cf6679; }
+        .btn-back { background-color: #393e46; margin-bottom: 20px; }
+
+        /* Tabla */
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: #252a34; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #393e46; }
+        th { background-color: #1a1a2e; color: #e94560; text-transform: uppercase; font-size: 0.9rem; }
+        tr:hover { background-color: #2c3240; }
+        
+        .status-pendiente { color: #ffd700; font-weight: bold; }
+        .status-aprobada { color: #00adb5; font-weight: bold; }
+        .status-rechazada { color: #cf6679; font-weight: bold; }
+
+        .hidden { display: none; }
+        .card { background: #252a34; padding: 20px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #393e46; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="view-landing">
+            <h1>Gestion de Ausencias</h1>
+            <p style="text-align:center; color:#aebbc9;">Seleccione su perfil para ingresar</p>
+            <button class="role-btn btn-admin" onclick="mostrarLoginAdmin()">Soy Administrador</button>
+            <button class="role-btn btn-emp" onclick="mostrarLoginEmp()">Soy Empleado</button>
+        </div>
+
+        <div id="view-login-admin" class="hidden">
+            <button class="btn btn-back" onclick="volverInicio()">← Volver</button>
+            <h2>Acceso Administrativo</h2>
+            <div class="form-group">
+                <label>Usuario Admin</label>
+                <input type="text" id="admin-user" placeholder="admin">
+            </div>
+            <div class="form-group">
+                <label>Contrasena</label>
+                <input type="password" id="admin-pass" placeholder="******">
+            </div>
+            <button class="btn btn-primary" onclick="loginAdmin()">Ingresar al Panel</button>
+        </div>
+
+        <div id="view-login-emp" class="hidden">
+            <button class="btn btn-back" onclick="volverInicio()">← Volver</button>
+            <h2>Portal del Empleado</h2>
+            <div class="form-group">
+                <label>Ingrese su Codigo de Empleado</label>
+                <input type="text" id="emp-code-login" placeholder="Ej: EMP-001">
+            </div>
+            <button class="btn btn-primary" onclick="loginEmp()">Ver Mis Solicitudes</button>
+        </div>
+
+        <div id="view-dashboard-admin" class="hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Panel de Control</h2>
+                <button class="btn btn-danger" onclick="cerrarSesion()">Cerrar Sesion</button>
+            </div>
+            <p style="color:#aebbc9;">Gestione las solicitudes pendientes de todos los empleados.</p>
+            <div id="lista-solicitudes-admin"></div>
+        </div>
+
+        <div id="view-dashboard-emp" class="hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 id="emp-welcome-title">Mi Portal</h2>
+                <button class="btn btn-danger" onclick="cerrarSesion()">Salir</button>
+            </div>
+
+            <div class="card">
+                <h3>+ Nueva Solicitud</h3>
+                <div class="form-group">
+                    <input type="text" id="new-nombre" placeholder="Su Nombre Completo">
+                </div>
+                <div class="form-group">
+                    <input type="date" id="new-fecha">
+                </div>
+                <div class="form-group">
+                    <textarea id="new-motivo" placeholder="Motivo de la ausencia..." rows="2"></textarea>
+                </div>
+                <button class="btn btn-success" style="width:100%" onclick="crearSolicitud()">Enviar Solicitud</button>
+            </div>
+
+            <h3>Mis Solicitudes Historicas</h3>
+            <div id="lista-solicitudes-emp"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- LOGICA DE NAVEGACION ---
+        let currentUserRole = null;
+        let currentEmpCode = null;
+
+        function mostrarLoginAdmin() { switchView('view-login-admin'); }
+        function mostrarLoginEmp() { switchView('view-login-emp'); }
+        function volverInicio() { switchView('view-landing'); }
+        
+        function switchView(viewId) {
+            document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        function cerrarSesion() {
+            currentUserRole = null;
+            currentEmpCode = null;
+            location.reload();
+        }
+
+        // --- FUNCIONES ADMIN ---
+        function loginAdmin() {
+            const user = document.getElementById('admin-user').value;
+            // Validacion simple visual
+            if(user) {
+                currentUserRole = 'admin';
+                switchView('view-dashboard-admin');
+                cargarSolicitudesAdmin();
+            } else { alert("Ingrese usuario"); }
+        }
+
+        async function cargarSolicitudesAdmin() {
+            try {
+                // Admin no envia parametros, recibe TODO
+                const response = await fetch('/api/solicitudes/');
+                const data = await response.json();
+                renderTableAdmin(data);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderTableAdmin(data) {
+            let html = `<table><thead><tr><th>Empleado</th><th>Fecha</th><th>Motivo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
+            data.forEach(sol => {
+                html += `<tr>
+                    <td><b>${sol.nombre_completo}</b><br><small>${sol.codigo_empleado}</small></td>
+                    <td>${sol.fecha_ausencia}</td>
+                    <td>${sol.motivo_detallado}</td>
+                    <td class="status-${sol.estado}">${sol.estado.toUpperCase()}</td>
+                    <td>
+                        ${sol.estado === 'pendiente' ? `
+                            <button class="btn btn-success" onclick="gestionar(${sol.id}, 'aprobada')">Aprobar</button>
+                            <button class="btn btn-danger" onclick="gestionar(${sol.id}, 'rechazada')">Rechazar</button>
+                        ` : '-'}
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('lista-solicitudes-admin').innerHTML = html;
+        }
+
+        async function gestionar(id, estado) {
+            const csrf = getCookie('csrftoken');
+            await fetch(`/api/solicitudes/${id}/gestionar/`, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json', 'X-CSRFToken': csrf},
+                body: JSON.stringify({estado: estado})
+            });
+            cargarSolicitudesAdmin(); // Recargar tabla
+        }
+
+        // --- FUNCIONES EMPLEADO ---
+        function loginEmp() {
+            const code = document.getElementById('emp-code-login').value;
+            if(code) {
+                currentUserRole = 'emp';
+                currentEmpCode = code;
+                document.getElementById('emp-welcome-title').innerText = `Portal: ${code}`;
+                switchView('view-dashboard-emp');
+                cargarSolicitudesEmp();
+            } else { alert("Ingrese su codigo"); }
+        }
+
+        async function cargarSolicitudesEmp() {
+            try {
+                // Empleado ENVIA su codigo para filtrar
+                const response = await fetch(`/api/solicitudes/?codigo=${currentEmpCode}`);
+                const data = await response.json();
+                renderTableEmp(data);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderTableEmp(data) {
+            let html = `<table><thead><tr><th>Fecha</th><th>Motivo</th><th>Estado</th></tr></thead><tbody>`;
+            data.forEach(sol => {
+                html += `<tr>
+                    <td>${sol.fecha_ausencia}</td>
+                    <td>${sol.motivo_detallado}</td>
+                    <td class="status-${sol.estado}">${sol.estado.toUpperCase()}</td>
+                </tr>`;
+            });
+            if(data.length === 0) html += '<tr><td colspan="3" style="text-align:center">No tienes solicitudes previas</td></tr>';
+            html += '</tbody></table>';
+            document.getElementById('lista-solicitudes-emp').innerHTML = html;
+        }
+
+        async function crearSolicitud() {
+            const nombre = document.getElementById('new-nombre').value;
+            const fecha = document.getElementById('new-fecha').value;
+            const motivo = document.getElementById('new-motivo').value;
+            const csrf = getCookie('csrftoken');
+
+            if(!nombre || !fecha || !motivo) { alert("Complete todos los campos"); return; }
+
+            const payload = {
+                codigo_empleado: currentEmpCode, // Usamos el codigo del login
+                nombre_completo: nombre,
+                fecha_ausencia: fecha,
+                motivo_detallado: motivo,
+                // Datos automaticos/relleno
+                correo_contacto: "usuario@empresa.com",
+                telefono_contacto: "00000000",
+                telefono_emergencia: "00000000",
+                departamento: "it",
+                puesto_trabajo: "Empleado",
+                supervisor_directo: "Admin",
+                usuario: 1 // Linkeado al admin por defecto en este prototipo
+            };
+
+            const res = await fetch('/api/solicitudes/', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json', 'X-CSRFToken': csrf},
+                body: JSON.stringify(payload)
+            });
+
+            if(res.ok) {
+                alert("Solicitud enviada con exito");
+                // Limpiar form
+                document.getElementById('new-fecha').value = '';
+                document.getElementById('new-motivo').value = '';
+                cargarSolicitudesEmp();
+            } else {
+                const err = await res.json();
+                alert("Error: " + JSON.stringify(err));
+            }
+        }
+
+        function getCookie(name) {
+            let v = null;
+            if (document.cookie && document.cookie !== '') {
+                const c = document.cookie.split(';');
+                for (let i = 0; i < c.length; i++) {
+                    const ck = c[i].trim();
+                    if (ck.substring(0, name.length + 1) === (name + '=')) {
+                        v = decodeURIComponent(ck.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return v;
+        }
+    </script>
+</body>
+</html>

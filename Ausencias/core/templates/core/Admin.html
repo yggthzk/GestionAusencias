@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-white fw-bold">Panel de Administración</h2>
+        <p class="text-secondary">Gestión de solicitudes pendientes</p>
+    </div>
+</div>
+
+<div class="card shadow-lg border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead class="text-secondary text-uppercase small">
+                    <tr>
+                        <th class="ps-4 py-3">Empleado</th>
+                        <th class="py-3">Tipo</th>
+                        <th class="py-3">Fechas</th>
+                        <th class="py-3">Motivo</th>
+                        <th class="py-3 text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sol in solicitudes %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-white">{{ sol.nombre_completo }}</div>
+                            <div class="small text-muted">{{ sol.codigo_empleado }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                                {{ sol.get_tipo_ausencia_display }}
+                            </span>
+                        </td>
+                        <td class="text-white">
+                            {{ sol.fecha_inicio|date:"d M" }} - {{ sol.fecha_fin|date:"d M" }}
+                        </td>
+                        <td class="text-secondary small" style="max-width: 200px;">
+                            {{ sol.motivo_detallado|truncatechars:50 }}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'gestionar_solicitud' sol.id 'aprobar' %}" class="btn btn-success btn-sm me-2">
+                                ✓ Aprobar
+                            </a>
+                            <a href="{% url 'gestionar_solicitud' sol.id 'rechazar' %}" class="btn btn-danger btn-sm">
+                                ✕ Rechazar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <h5>No hay solicitudes pendientes</h5>
+                            <p class="small">¡Todo al día!</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<style>
+    body {
+        /* Fondo Gradiente Mate "Deep Space" - Elegante y suave */
+        background: linear-gradient(135deg, #1f2833 0%, #151b22 100%);
+        /* Opcion alternativa (Azul mas vivo): background: linear-gradient(135deg, #16222a 0%, #3a6073 100%); */
+        background-attachment: fixed;
+        background-size: cover;
+        margin: 0;
+        height: 100vh;
+    }
+    
+    .card {
+        /* Efecto Mate Glassmorphism */
+        background-color: rgba(35, 40, 45, 0.75) !important;
+        backdrop-filter: blur(20px); /* Desenfoque fuerte para efecto mate */
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .navbar {
+        background-color: transparent !important;
+        border-bottom: none !important;
+    }
+
+    .input-group-text {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #a0a0a0;
+    }
+
+    .form-control {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+    }
+    
+    .form-control:focus {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #0062cc, #005cbf);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 98, 204, 0.3);
+    }
+</style>
+
+<div class="row justify-content-center align-items-center" style="height: 80vh;">
+    <div class="col-md-5 col-lg-4">
+        <div class="card p-4 rounded-4">
+            <div class="text-center mb-4 mt-2">
+                <div class="mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#0d6efd" class="bi bi-building-fill-check" viewBox="0 0 16 16">
+                        <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7.256A4.493 4.493 0 0 0 12.5 8a4.493 4.493 0 0 0-3.59 1.787A.498.498 0 0 0 9 9.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .39-.187A4.476 4.476 0 0 0 8.027 12H6.5a.5.5 0 0 0-.5.5V16H3a1 1 0 0 1-1-1V1Zm2 1.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5Zm3 0v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5Zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1ZM4 5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5ZM7.5 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Zm2.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5ZM4.5 8a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Z"/>
+                        <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514Z"/>
+                    </svg>
+                </div>
+                <h3 class="fw-bold text-white mb-1">Bienvenido</h3>
+                <p class="text-secondary small">Portal de Gestión de Ausencias</p>
+            </div>
+
+            {% if form.errors %}
+                <div class="alert alert-danger d-flex align-items-center small py-2 rounded-3" role="alert">
+                    <div class="me-2"><i class="bi bi-exclamation-circle-fill"></i></div>
+                    <div>Usuario o contraseña incorrectos.</div>
+                </div>
+            {% endif %}
+            
+            <div class="card-body p-2">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small text-uppercase fw-bold ms-1" style="font-size: 0.75rem; letter-spacing: 1px;">Usuario</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i>@</span>
+                            <input type="text" name="username" class="form-control form-control-lg" placeholder="Usuario" required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-secondary small text-uppercase fw-bold ms-1" style="font-size: 0.75rem; letter-spacing: 1px;">Contraseña</label>
+                        <input type="password" name="password" class="form-control form-control-lg" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg fw-bold py-2 shadow-sm rounded-3">INGRESAR</button>
+                </form>
+            </div>
+            
+            <div class="text-center mt-4 pt-3 border-top border-secondary border-opacity-25">
+                <small class="text-secondary opacity-75">Plataforma Segura 2025</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

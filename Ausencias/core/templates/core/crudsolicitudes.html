@@ -1,0 +1,69 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-white fw-bold">Nueva Solicitud</h2>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card shadow-lg border-0" style="background-color: #1e1e1e;">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Nombre Completo</label>
+                        <input type="text" name="nombre_completo" class="form-control bg-dark text-white border-secondary" value="{{ user.first_name }} {{ user.last_name }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Tipo de Ausencia</label>
+                        <select name="tipo" class="form-select bg-dark text-white border-secondary" required>
+                            <option value="vacaciones">Vacaciones</option>
+                            <option value="medica">Licencia Medica</option>
+                            <option value="personal">Dia Personal</option>
+                        </select>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-secondary">Desde</label>
+                            <input type="date" name="fecha_inicio" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-secondary">Hasta</label>
+                            <input type="date" name="fecha_fin" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Link del justificativo medico</label>
+                        <input type="url" name="url_justificativo" class="form-control bg-dark text-white border-secondary" placeholder="https://...">
+                        <div class="form-text text-muted">Opcional para vacaciones, obligatorio para licencia medica.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-secondary">Motivo (Detallado)</label>
+                        <textarea name="motivo" class="form-control bg-dark text-white border-secondary" rows="4" placeholder="Describa brevemente la razon..." required></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Enviar Solicitud</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
